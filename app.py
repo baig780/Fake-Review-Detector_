@@ -1,3 +1,18 @@
+import streamlit as st
+
+# ✅ Fix: Move set_page_config to the top
+st.set_page_config(page_title="Fake Review Detector", page_icon="📝", layout="centered")
+
+import joblib
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import json
+import os
 
 import streamlit as st
 import joblib
