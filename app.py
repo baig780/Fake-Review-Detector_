@@ -1,18 +1,3 @@
-import streamlit as st
-
-# ✅ Fix: Move set_page_config to the top
-st.set_page_config(page_title="Fake Review Detector", page_icon="📝", layout="centered")
-
-import joblib
-import re
-import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import json
-import os
 
 import streamlit as st
 import joblib
@@ -84,23 +69,73 @@ def analyze_sentiment(prob):
 # ✅ Set Streamlit page config
 st.set_page_config(page_title="Fake Review Detector", page_icon="📝", layout="centered")
 
+# ✅ 🔥 Stunning CSS for Modern UI
+st.markdown("""
+    <style>
+        /* 🌟 Custom Font & Background */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #141E30, #243B55);
+            color: white;
+            animation: gradientAnimation 10s infinite alternate;
+        }
+
+        /* 🔥 Neon Glow for Title */
+        .title {
+            text-align: center;
+            font-size: 42px;
+            font-weight: bold;
+            color: #00E5FF;
+            text-shadow: 0 0 20px #00E5FF, 0 0 40px #00E5FF;
+        }
+
+        /* 🎨 Fancy Buttons */
+        .stButton button {
+            background: linear-gradient(135deg, #00E5FF, #0096FF);
+            color: white;
+            font-size: 18px;
+            padding: 12px;
+            border-radius: 10px;
+            transition: 0.3s ease-in-out;
+            box-shadow: 0 0 20px #00E5FF;
+        }
+        .stButton button:hover {
+            background: linear-gradient(135deg, #0096FF, #00E5FF);
+            box-shadow: 0 0 25px #0096FF;
+            transform: scale(1.05);
+        }
+
+        /* 🟢 Text Input Styling */
+        .stTextArea textarea {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        /* 🌟 Results Box */
+        .result-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 22px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        /* 🔥 Gradient Animation */
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # ✅ App Title
 st.markdown("<h1 class='title'>📝 Fake Review Detector AI</h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center;'>🚀 Made by <b>Abdul Rahman Baig</b></h4>", unsafe_allow_html=True)
-
-# ✅ Dark Mode Toggle
-dark_mode = st.checkbox("🌙 Enable Dark Mode")
-if dark_mode:
-    st.markdown("<style>body { background-color: #222; color: white; }</style>", unsafe_allow_html=True)
-
-# ✅ Model Selection
-selected_model = st.selectbox("Select a Model:", list(model_options.keys()))
-if selected_model != current_model_name:
-    try:
-        model = joblib.load(model_options[selected_model])
-        current_model_name = selected_model
-    except FileNotFoundError:
-        st.error(f"❌ {selected_model} model file not found. Please upload the correct file.")
 
 # ✅ User Input Section
 st.markdown("### 🔍 Enter a Review to Analyze")
@@ -119,9 +154,9 @@ if st.button("🚀 Analyze Review Now"):
             sentiment = analyze_sentiment(prob[1])
 
             if prediction == 1:
-                st.markdown(f"<div class='review-box'>❌ **Fake Review Detected!** 😡 (Confidence: {confidence}%)</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='result-box'>❌ **Fake Review Detected!** 😡 (Confidence: {confidence}%)</div>", unsafe_allow_html=True)
             else:
-                st.markdown(f"<div class='review-box'>✅ **Real Review!** 🎉 (Confidence: {confidence}%)</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='result-box'>✅ **Real Review!** 🎉 (Confidence: {confidence}%)</div>", unsafe_allow_html=True)
 
             # ✅ Confidence Score Visualization
             fig, ax = plt.subplots()
@@ -139,52 +174,6 @@ if st.button("🚀 Analyze Review Now"):
     else:
         st.warning("⚠️ Please enter a review to analyze.")
 
-# ✅ Review Submission Section
-st.markdown("---")  
-st.subheader("📝 Give Your Honest Review About This App")  
-
-reviewer_name = st.text_input("Your Name", "")
-app_review = st.text_area("Your Review", "")
-
-if st.button("Submit Review"):
-    if reviewer_name.strip() and app_review.strip():
-        review_entry = {"name": reviewer_name, "review": app_review}
-
-        # ✅ Load existing reviews
-        if os.path.exists("app_reviews.json"):
-            with open("app_reviews.json", "r") as f:
-                try:
-                    review_data = json.load(f)
-                except json.JSONDecodeError:
-                    review_data = []
-        else:
-            review_data = []
-
-        review_data.append(review_entry)
-
-        # ✅ Save updated reviews
-        with open("app_reviews.json", "w") as f:
-            json.dump(review_data, f, indent=4)
-
-        st.success("✅ Thank you for your feedback!")
-    else:
-        st.warning("⚠️ Please enter your name and review before submitting.")
-
-# ✅ Display All User Reviews
-st.markdown("---")  
-st.subheader("📢 User Reviews About This App")
-
-try:
-    with open("app_reviews.json", "r") as f:
-        review_data = json.load(f)
-
-    if review_data:
-        for review in review_data[-10:]:  # Show the last 10 reviews
-            st.write(f"📝 **{review['name']}**: {review['review']}")
-    else:
-        st.info("No reviews yet. Be the first to leave feedback! 😊")
-except FileNotFoundError:
-    st.info("No reviews yet. Be the first to leave feedback! 😊")
-
+# ✅ Footer
 st.markdown("---")
-
+st.markdown("<h4 style='text-align: center;'>🔥 Built with ❤️ using Streamlit & AI 🔥</h4>", unsafe_allow_html=True)
